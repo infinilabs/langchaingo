@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -74,7 +75,8 @@ func (s Scraper) Name() string {
 func (s Scraper) Description() string {
 	return `
 		Web Scraper will scan a url and return the content of the web page.
-		Input should be a working url.
+		Input should be a working HTTP(S) URL passed as a plain string,
+		e.g. https://example.com/page — not a JSON object.
 	`
 }
 
@@ -84,7 +86,8 @@ func (s Scraper) Description() string {
 // consumption. A CSS selector can be configured via WithContentSelector
 // to extract only the main content area and skip navigation chrome.
 func (s Scraper) Call(ctx context.Context, input string) (string, error) {
-	_, err := url.ParseRequestURI(input)
+	targetURL := extractURL(input)
+	_, err := url.ParseRequestURI(targetURL)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", ErrScrapingFailed, err)
 	}
@@ -181,7 +184,7 @@ func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 			})
 		}
 
-		if currentURL == input {
+		if currentURL == targetURL {
 			e.ForEach("a", func(_ int, el *colly.HTMLElement) {
 				link := el.Attr("href")
 				if link != "" && !homePageLinks[link] {
@@ -233,7 +236,7 @@ func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 		}
 	})
 
-	err = c.Visit(input)
+	err = c.Visit(targetURL)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", ErrScrapingFailed, err)
 	}
@@ -280,4 +283,43 @@ func extractContentHTML(e *colly.HTMLElement, selector string) string {
 	}
 	html, _ := e.DOM.Html()
 	return html
+}
+
+// extractURL handles both plain-text URLs and JSON-wrapped URLs. When the
+// scraper is used alongside MCP tools (which accept JSON input), the LLM often
+// formats every tool's input as JSON. This function unwraps {"url":"..."} and
+// similar shapes so the scraper always receives a clean URL string.
+func extractURL(input string) string {
+	input = strings.TrimSpace(input)
+
+	// Fast path: not JSON, return as-is.
+	if !strings.HasPrefix(input, "{") {
+		return input
+	}
+
+	// Try common JSON shapes: {"url": "..."}, {"URL": "..."}.
+	var obj map[string]string
+	if err := json.Unmarshal([]byte(input), &obj); err == nil {
+		for _, key := range []string{"url", "URL", "Url"} {
+			if v, ok := obj[key]; ok && v != "" {
+				return strings.TrimSpace(v)
+			}
+		}
+	}
+
+	// Fallback: try to find a URL-looking substring inside the JSON.
+	for _, scheme := range []string{"https://", "http://"} {
+		if idx := strings.Index(input, scheme); idx != -1 {
+			rest := input[idx:]
+			// Cut at the next quote, space, or brace.
+			for _, delim := range []string{"\"", " ", "}", ","} {
+				if cut := strings.Index(rest, delim); cut != -1 {
+					return rest[:cut]
+				}
+			}
+			return rest
+		}
+	}
+
+	return input
 }
