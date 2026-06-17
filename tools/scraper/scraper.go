@@ -157,7 +157,10 @@ func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 		scrapedLinksMutex.Unlock()
 
 		var pageBuf strings.Builder
-		pageBuf.WriteString("\n\nPage URL: " + currentURL)
+		if siteData.Len() > 0 {
+			pageBuf.WriteString("\n\n")
+		}
+		pageBuf.WriteString("Page URL: " + currentURL)
 
 		title := e.ChildText("title")
 		if title != "" {
