@@ -68,11 +68,9 @@ func (t Tool) Name() string {
 }
 
 func (t Tool) Description() string {
-	return `
-	A wrapper around Wikipedia. 
-	Useful for when you need to answer general questions about 
-	people, places, companies, facts, historical events, or other subjects. 
-	Input should be a search query.`
+	return `A wrapper around Wikipedia. Useful for when you need to answer general questions about people, places, companies, facts, historical events, or other subjects.
+Input should be a plain-text search query string (not JSON), e.g. Albert Einstein.
+Returns plain-text excerpts from the top matching Wikipedia pages.`
 }
 
 // Call uses the wikipedia api to find the top search results for the input and returns

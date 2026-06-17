@@ -73,11 +73,10 @@ func (s Scraper) Name() string {
 
 // Description returns the description of the Go function.
 func (s Scraper) Description() string {
-	return `
-		Web Scraper will scan a url and return the content of the web page.
-		Input should be a working HTTP(S) URL passed as a plain string,
-		e.g. https://example.com/page — not a JSON object.
-	`
+	return `Web Scraper will scan a URL and return the content of the web page as Markdown.
+Useful for when you need to read the full text of a specific web page, including headings, lists, links, and tables.
+Input should be a plain-text HTTP(S) URL string (not JSON), e.g. https://example.com/page.
+Returns the page title, meta description, and the full page body converted to Markdown.`
 }
 
 // Call scrapes a website and returns the site data.

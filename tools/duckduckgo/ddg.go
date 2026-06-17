@@ -52,10 +52,13 @@ func (t Tool) Name() string {
 
 // Description returns a description for the tool.
 func (t Tool) Description() string {
-	return `
-	"A wrapper around DuckDuckGo Search."
-	"Free search alternative to google and serpapi."
-	"Input should be a search query."`
+	return `A wrapper around DuckDuckGo Search. A free search alternative to Google.
+Useful for when you need to answer questions about current events or find specific web pages.
+Input should be a plain-text search query string (not JSON), e.g. latest Go release notes.
+Returns results as plain text, each formatted as:
+  Title: <page title>
+  Description: <short snippet>
+  URL: <link>`
 }
 
 // Call performs the search and return the result.

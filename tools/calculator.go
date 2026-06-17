@@ -18,8 +18,10 @@ var _ Tool = Calculator{}
 
 // Description returns a string describing the calculator tool.
 func (c Calculator) Description() string {
-	return `Useful for getting the result of a math expression. 
-	The input to this tool should be a valid mathematical expression that could be executed by a starlark evaluator.`
+	return `Useful for when you need to answer questions about math.
+Input should be a plain-text mathematical expression (not JSON), e.g. 2 + 2 or sqrt(16) * 3.
+Supports arithmetic, trigonometry, and other common math functions.
+Returns the result of evaluating the expression as a number string.`
 }
 
 // Name returns the name of the tool.
