@@ -36,6 +36,7 @@ type Scraper struct {
 	Async           bool
 	MaxPages        int
 	ContentSelector string // e.g. "article", "#mw-content-text", "main"
+	UserAgent       string // HTTP User-Agent header; empty uses colly default
 }
 
 var _ tools.Tool = Scraper{}
@@ -95,6 +96,9 @@ func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 		colly.MaxDepth(s.MaxDepth),
 		colly.Async(s.Async),
 	)
+	if s.UserAgent != "" {
+		c.UserAgent = s.UserAgent
+	}
 
 	err = c.Limit(&colly.LimitRule{
 		DomainGlob:  "*",

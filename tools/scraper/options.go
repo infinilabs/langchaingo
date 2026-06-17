@@ -103,3 +103,12 @@ func WithContentSelector(selector string) Options {
 		o.ContentSelector = selector
 	}
 }
+
+// WithUserAgent sets the HTTP User-Agent header sent with every request.
+//
+// When empty (the default) colly's built-in User-Agent is used.
+func WithUserAgent(ua string) Options {
+	return func(o *Scraper) {
+		o.UserAgent = ua
+	}
+}
