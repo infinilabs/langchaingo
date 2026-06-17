@@ -5,9 +5,6 @@ type Options func(*Scraper)
 // WithMaxDepth sets the maximum depth for the Scraper.
 //
 // Default value: 1
-//
-// maxDepth: the maximum depth to set.
-// Returns: an Options function.
 func WithMaxDepth(maxDepth int) Options {
 	return func(o *Scraper) {
 		o.MaxDepth = maxDepth
@@ -15,12 +12,9 @@ func WithMaxDepth(maxDepth int) Options {
 }
 
 // WithParallelsNum sets the number of maximum allowed concurrent
-// requests of the matching domains
+// requests of the matching domains.
 //
 // Default value: 2
-//
-// parallels: the number of parallels to set.
-// Returns: the updated Scraper options.
 func WithParallelsNum(parallels int) Options {
 	return func(o *Scraper) {
 		o.Parallels = parallels
@@ -33,9 +27,6 @@ func WithParallelsNum(parallels int) Options {
 // the Scraper should wait between requests.
 //
 // Default value: 3
-//
-// delay: the delay to set.
-// Returns: an Options function.
 func WithDelay(delay int64) Options {
 	return func(o *Scraper) {
 		o.Delay = delay
@@ -45,9 +36,6 @@ func WithDelay(delay int64) Options {
 // WithAsync sets the async option for the Scraper.
 //
 // Default value: true
-
-// async: The boolean value indicating if the scraper should run asynchronously.
-// Returns a function that sets the async option for the Scraper.
 func WithAsync(async bool) Options {
 	return func(o *Scraper) {
 		o.Async = async
@@ -69,9 +57,6 @@ func WithAsync(async bool) Options {
 //		"download",
 //		"redirect",
 //	},
-//
-// blacklist: slice of strings with url endpoints to be excluded from the scraping.
-// Returns: an Options function.
 func WithNewBlacklist(blacklist []string) Options {
 	return func(o *Scraper) {
 		o.Blacklist = blacklist
@@ -80,7 +65,7 @@ func WithNewBlacklist(blacklist []string) Options {
 
 // WithBlacklist creates an Options function that appends
 // the url endpoints to be excluded from the scraping,
-// to the current list
+// to the current list.
 //
 // Default value:
 //
@@ -93,9 +78,6 @@ func WithNewBlacklist(blacklist []string) Options {
 //		"download",
 //		"redirect",
 //	},
-//
-// blacklist: slice of strings with url endpoints to be excluded from the scraping.
-// Returns: an Options function.
 func WithBlacklist(blacklist []string) Options {
 	return func(o *Scraper) {
 		o.Blacklist = append(o.Blacklist, blacklist...)
@@ -105,11 +87,19 @@ func WithBlacklist(blacklist []string) Options {
 // WithMaxPages sets the maximum number of pages to scrape.
 //
 // Default value: 0 (no limit)
-//
-// maxPages: the maximum number of pages to scrape. Set to 0 for no limit.
-// Returns: an Options function.
 func WithMaxPages(maxPages int) Options {
 	return func(o *Scraper) {
 		o.MaxPages = maxPages
+	}
+}
+
+// WithContentSelector sets a CSS selector used to extract the main content
+// area from each page before converting to Markdown.
+//
+// When empty (the default) the converter uses the <body> element.
+// Common values: "article", "main", "#mw-content-text", "#content".
+func WithContentSelector(selector string) Options {
+	return func(o *Scraper) {
+		o.ContentSelector = selector
 	}
 }

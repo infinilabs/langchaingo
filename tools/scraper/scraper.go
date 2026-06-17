@@ -9,6 +9,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/JohannesKaufmann/html-to-markdown/v2/converter"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/base"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/commonmark"
+	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/table"
 	"github.com/gocolly/colly"
 	"github.com/tmc/langchaingo/tools"
 )
@@ -24,24 +28,18 @@ const (
 var ErrScrapingFailed = errors.New("scraper could not read URL, or scraping is not allowed for provided URL")
 
 type Scraper struct {
-	MaxDepth  int
-	Parallels int
-	Delay     int64
-	Blacklist []string
-	Async     bool
-	MaxPages  int
+	MaxDepth        int
+	Parallels       int
+	Delay           int64
+	Blacklist       []string
+	Async           bool
+	MaxPages        int
+	ContentSelector string // e.g. "article", "#mw-content-text", "main"
 }
 
 var _ tools.Tool = Scraper{}
 
 // New creates a new instance of Scraper with the provided options.
-//
-// The options parameter is a variadic argument allowing the user to specify
-// custom configuration options for the Scraper. These options can be
-// functions that modify the Scraper's properties.
-//
-// The function returns a pointer to a Scraper instance and an error. The
-// error value is nil if the Scraper is created successfully.
 func New(options ...Options) (*Scraper, error) {
 	scraper := &Scraper{
 		MaxDepth:  DefualtMaxDept,
@@ -68,17 +66,11 @@ func New(options ...Options) (*Scraper, error) {
 }
 
 // Name returns the name of the Scraper.
-//
-// No parameters.
-// Returns a string.
 func (s Scraper) Name() string {
 	return "Web Scraper"
 }
 
 // Description returns the description of the Go function.
-//
-// There are no parameters.
-// It returns a string.
 func (s Scraper) Description() string {
 	return `
 		Web Scraper will scan a url and return the content of the web page.
@@ -87,12 +79,10 @@ func (s Scraper) Description() string {
 }
 
 // Call scrapes a website and returns the site data.
-//
-// The function takes a context.Context object for managing the execution
-// context and a string input representing the URL of the website to be scraped.
-// It returns a string containing the scraped data and an error if any.
-//
-//nolint:all
+// The body of each page is converted to Markdown so that formatting
+// (headings, lists, links, tables, code blocks) is preserved for LLM
+// consumption. A CSS selector can be configured via WithContentSelector
+// to extract only the main content area and skip navigation chrome.
 func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 	_, err := url.ParseRequestURI(input)
 	if err != nil {
@@ -114,11 +104,21 @@ func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 	}
 
 	var siteData strings.Builder
+	var siteDataMutex sync.Mutex
 	homePageLinks := make(map[string]bool)
 	scrapedLinks := make(map[string]bool)
 	scrapedLinksMutex := sync.RWMutex{}
 	pageCount := 0
 	pageCountMutex := sync.Mutex{}
+
+	// Build a reusable markdown converter with table support.
+	mdConverter := converter.NewConverter(
+		converter.WithPlugins(
+			base.NewBasePlugin(),
+			commonmark.NewCommonmarkPlugin(),
+			table.NewTablePlugin(),
+		),
+	)
 
 	c.OnRequest(func(r *colly.Request) {
 		if ctx.Err() != nil {
@@ -141,83 +141,92 @@ func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 	c.OnHTML("html", func(e *colly.HTMLElement) {
 		currentURL := e.Request.URL.String()
 
-		// Only process the page if it hasn't been visited yet
+		// Only process the page if it hasn't been visited yet.
 		scrapedLinksMutex.Lock()
-		if !scrapedLinks[currentURL] {
-			scrapedLinks[currentURL] = true
+		if scrapedLinks[currentURL] {
 			scrapedLinksMutex.Unlock()
-
-			siteData.WriteString("\n\nPage URL: " + currentURL)
-
-			title := e.ChildText("title")
-			if title != "" {
-				siteData.WriteString("\nPage Title: " + title)
-			}
-
-			description := e.ChildAttr("meta[name=description]", "content")
-			if description != "" {
-				siteData.WriteString("\nPage Description: " + description)
-			}
-
-			siteData.WriteString("\nHeaders:")
-			e.ForEach("h1, h2, h3, h4, h5, h6", func(_ int, el *colly.HTMLElement) {
-				siteData.WriteString("\n" + el.Text)
-			})
-
-			siteData.WriteString("\nContent:")
-			e.ForEach("p", func(_ int, el *colly.HTMLElement) {
-				siteData.WriteString("\n" + el.Text)
-			})
-
-			if currentURL == input {
-				e.ForEach("a", func(_ int, el *colly.HTMLElement) {
-					link := el.Attr("href")
-					if link != "" && !homePageLinks[link] {
-						homePageLinks[link] = true
-						siteData.WriteString("\nLink: " + link)
-					}
-				})
-			}
-		} else {
-			scrapedLinksMutex.Unlock()
+			return
 		}
+		scrapedLinks[currentURL] = true
+		scrapedLinksMutex.Unlock()
+
+		var pageBuf strings.Builder
+		pageBuf.WriteString("\n\nPage URL: " + currentURL)
+
+		title := e.ChildText("title")
+		if title != "" {
+			pageBuf.WriteString("\nPage Title: " + title)
+		}
+
+		description := e.ChildAttr("meta[name=description]", "content")
+		if description != "" {
+			pageBuf.WriteString("\nPage Description: " + description)
+		}
+
+		// Extract main content HTML and convert to Markdown.
+		contentHTML := extractContentHTML(e, s.ContentSelector)
+		domain := e.Request.URL.Scheme + "://" + e.Request.URL.Host
+		markdown, convErr := mdConverter.ConvertString(contentHTML, converter.WithDomain(domain))
+		if convErr == nil && strings.TrimSpace(markdown) != "" {
+			pageBuf.WriteString("\n\nPage Content (Markdown):\n" + markdown)
+		} else {
+			// Fallback: plain-text extraction for legacy compatibility.
+			pageBuf.WriteString("\nHeaders:")
+			e.ForEach("h1, h2, h3, h4, h5, h6", func(_ int, el *colly.HTMLElement) {
+				pageBuf.WriteString("\n" + el.Text)
+			})
+			pageBuf.WriteString("\nContent:")
+			e.ForEach("p", func(_ int, el *colly.HTMLElement) {
+				pageBuf.WriteString("\n" + el.Text)
+			})
+		}
+
+		if currentURL == input {
+			e.ForEach("a", func(_ int, el *colly.HTMLElement) {
+				link := el.Attr("href")
+				if link != "" && !homePageLinks[link] {
+					homePageLinks[link] = true
+					pageBuf.WriteString("\nLink: " + link)
+				}
+			})
+		}
+
+		siteDataMutex.Lock()
+		siteData.WriteString(pageBuf.String())
+		siteDataMutex.Unlock()
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		link := e.Attr("href")
 		absoluteLink := e.Request.AbsoluteURL(link)
 
-		// Parse the link to get the hostname
 		u, err := url.Parse(absoluteLink)
 		if err != nil {
-			// Handle the error appropriately
 			return
 		}
 
-		// Check if the link's hostname matches the current request's hostname
 		if u.Hostname() != e.Request.URL.Hostname() {
 			return
 		}
 
-		// Check for redundant pages
 		for _, item := range s.Blacklist {
 			if strings.Contains(u.Path, item) {
 				return
 			}
 		}
 
-		// Normalize the path to treat '/' and '/index.html' as the same path
 		if u.Path == "/index.html" || u.Path == "" {
 			u.Path = "/"
 		}
 
-		// Only visit the page if it hasn't been visited yet
 		scrapedLinksMutex.RLock()
 		if !scrapedLinks[u.String()] {
 			scrapedLinksMutex.RUnlock()
 			err := c.Visit(u.String())
 			if err != nil {
+				siteDataMutex.Lock()
 				siteData.WriteString(fmt.Sprintf("\nError following link %s: %v", link, err))
+				siteDataMutex.Unlock()
 			}
 		} else {
 			scrapedLinksMutex.RUnlock()
@@ -229,7 +238,7 @@ func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 		return "", fmt.Errorf("%s: %w", ErrScrapingFailed, err)
 	}
 
-	// Wait for scraping to complete with context cancellation support
+	// Wait for scraping to complete with context cancellation support.
 	done := make(chan struct{})
 	go func() {
 		c.Wait()
@@ -240,14 +249,35 @@ func (s Scraper) Call(ctx context.Context, input string) (string, error) {
 	case <-ctx.Done():
 		return "", ctx.Err()
 	case <-done:
-		// Scraping completed normally
+		// Scraping completed normally.
 	}
 
-	// Append all scraped links
+	// Append all scraped links.
 	siteData.WriteString("\n\nScraped Links:")
 	for link := range scrapedLinks {
 		siteData.WriteString("\n" + link)
 	}
 
 	return siteData.String(), nil
+}
+
+// extractContentHTML returns the inner HTML of the first node matching the
+// given CSS selector. If selector is empty or no node matches, the inner HTML
+// of <body> is returned as a fallback. If <body> is also absent, the inner
+// HTML of the current element is returned.
+func extractContentHTML(e *colly.HTMLElement, selector string) string {
+	if selector != "" {
+		if sel := e.DOM.Find(selector); sel.Length() > 0 {
+			html, err := sel.First().Html()
+			if err == nil && strings.TrimSpace(html) != "" {
+				return html
+			}
+		}
+	}
+	if body := e.DOM.Find("body"); body.Length() > 0 {
+		html, _ := body.First().Html()
+		return html
+	}
+	html, _ := e.DOM.Html()
+	return html
 }
