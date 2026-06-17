@@ -102,15 +102,20 @@ func (client *Client) Search(ctx context.Context, query string) (string, error) 
 		title := titleNode.Text()
 		ref := ""
 
-		if len(titleNode.Nodes) > 0 && len(titleNode.Nodes[0].Attr) > 2 {
-			ref, err = url.QueryUnescape(
-				strings.TrimPrefix(
-					titleNode.Nodes[0].Attr[2].Val,
-					"/l/?kh=-1&uddg=",
-				),
-			)
-			if err != nil {
-				return "", err
+		if len(titleNode.Nodes) > 0 {
+			for _, attr := range titleNode.Nodes[0].Attr {
+				if attr.Key == "href" {
+					ref, err = url.QueryUnescape(
+						strings.TrimPrefix(
+							attr.Val,
+							"/l/?kh=-1&uddg=",
+						),
+					)
+					if err != nil {
+						return "", err
+					}
+					break
+				}
 			}
 		}
 
