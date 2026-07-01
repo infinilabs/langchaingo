@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tmc/langchaingo/internal/httprr"
+	"github.com/infinilabs/langchaingo/internal/httprr"
 )
 
 func scrubZapierData(req *http.Request) error {

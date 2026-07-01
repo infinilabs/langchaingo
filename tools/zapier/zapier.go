@@ -5,9 +5,9 @@ import (
 	"context"
 	"text/template"
 
-	"github.com/tmc/langchaingo/callbacks"
-	"github.com/tmc/langchaingo/tools"
-	"github.com/tmc/langchaingo/tools/zapier/internal"
+	"github.com/infinilabs/langchaingo/callbacks"
+	"github.com/infinilabs/langchaingo/tools"
+	"github.com/infinilabs/langchaingo/tools/zapier/internal"
 )
 
 type description struct {

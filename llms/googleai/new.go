@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/google/generative-ai-go/genai"
-	"github.com/tmc/langchaingo/callbacks"
-	"github.com/tmc/langchaingo/llms"
+	"github.com/infinilabs/langchaingo/callbacks"
+	"github.com/infinilabs/langchaingo/llms"
 )
 
 // GoogleAI is a type that represents a Google AI API client.

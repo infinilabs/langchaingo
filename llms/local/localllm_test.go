@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/schema"
+	"github.com/infinilabs/langchaingo/llms"
+	"github.com/infinilabs/langchaingo/schema"
 )
 
 func TestNew(t *testing.T) {

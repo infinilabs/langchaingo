@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/llms/anthropic"
+	"github.com/infinilabs/langchaingo/llms"
+	"github.com/infinilabs/langchaingo/llms/anthropic"
 )
 
 //go:embed image.png

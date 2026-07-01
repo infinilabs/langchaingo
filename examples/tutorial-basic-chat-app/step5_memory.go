@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/llms/openai"
-	"github.com/tmc/langchaingo/memory"
+	"github.com/infinilabs/langchaingo/llms"
+	"github.com/infinilabs/langchaingo/llms/openai"
+	"github.com/infinilabs/langchaingo/memory"
 )
 
 // Step 5: Chat with Memory

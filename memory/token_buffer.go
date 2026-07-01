@@ -3,8 +3,8 @@ package memory
 import (
 	"context"
 
-	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/schema"
+	"github.com/infinilabs/langchaingo/llms"
+	"github.com/infinilabs/langchaingo/schema"
 )
 
 // ConversationTokenBuffer for storing conversation memory.

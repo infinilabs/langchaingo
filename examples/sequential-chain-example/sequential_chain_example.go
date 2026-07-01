@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/tmc/langchaingo/chains"
-	"github.com/tmc/langchaingo/llms/openai"
-	"github.com/tmc/langchaingo/prompts"
+	"github.com/infinilabs/langchaingo/chains"
+	"github.com/infinilabs/langchaingo/llms/openai"
+	"github.com/infinilabs/langchaingo/prompts"
 )
 
 func main() {

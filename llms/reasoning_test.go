@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/tmc/langchaingo/llms"
+	"github.com/infinilabs/langchaingo/llms"
 )
 
 func TestThinkingModes(t *testing.T) {

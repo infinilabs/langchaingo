@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/tmc/langchaingo/callbacks"
-	"github.com/tmc/langchaingo/schema"
+	"github.com/infinilabs/langchaingo/callbacks"
+	"github.com/infinilabs/langchaingo/schema"
 )
 
 // Key name used to store the intermediate steps in the output, when configured.

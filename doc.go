@@ -7,13 +7,13 @@
 //
 // The framework is organized around several key packages:
 //
-//   - [github.com/tmc/langchaingo/llms]: Interfaces and implementations for various language models (OpenAI, Anthropic, Google, etc.)
-//   - [github.com/tmc/langchaingo/chains]: Composable operations that can be linked together to create complex workflows
-//   - [github.com/tmc/langchaingo/agents]: Autonomous entities that can use tools to accomplish tasks
-//   - [github.com/tmc/langchaingo/embeddings]: Text embedding functionality for semantic search and similarity
-//   - [github.com/tmc/langchaingo/vectorstores]: Interfaces to vector databases for storing and querying embeddings
-//   - [github.com/tmc/langchaingo/memory]: Conversation history and context management
-//   - [github.com/tmc/langchaingo/tools]: External tool integrations (web search, calculators, databases, etc.)
+//   - [github.com/infinilabs/langchaingo/llms]: Interfaces and implementations for various language models (OpenAI, Anthropic, Google, etc.)
+//   - [github.com/infinilabs/langchaingo/chains]: Composable operations that can be linked together to create complex workflows
+//   - [github.com/infinilabs/langchaingo/agents]: Autonomous entities that can use tools to accomplish tasks
+//   - [github.com/infinilabs/langchaingo/embeddings]: Text embedding functionality for semantic search and similarity
+//   - [github.com/infinilabs/langchaingo/vectorstores]: Interfaces to vector databases for storing and querying embeddings
+//   - [github.com/infinilabs/langchaingo/memory]: Conversation history and context management
+//   - [github.com/infinilabs/langchaingo/tools]: External tool integrations (web search, calculators, databases, etc.)
 //
 // # Quick Start
 //
@@ -23,8 +23,8 @@
 //		"context"
 //		"log"
 //
-//		"github.com/tmc/langchaingo/llms"
-//		"github.com/tmc/langchaingo/llms/openai"
+//		"github.com/infinilabs/langchaingo/llms"
+//		"github.com/infinilabs/langchaingo/llms/openai"
 //	)
 //
 //	ctx := context.Background()
@@ -40,9 +40,9 @@
 // Creating embeddings and using vector search:
 //
 //	import (
-//		"github.com/tmc/langchaingo/embeddings"
-//		"github.com/tmc/langchaingo/schema"
-//		"github.com/tmc/langchaingo/vectorstores/chroma"
+//		"github.com/infinilabs/langchaingo/embeddings"
+//		"github.com/infinilabs/langchaingo/schema"
+//		"github.com/infinilabs/langchaingo/vectorstores/chroma"
 //	)
 //
 //	// Create an embedder
@@ -70,8 +70,8 @@
 // Building a chain for question answering:
 //
 //	import (
-//		"github.com/tmc/langchaingo/chains"
-//		"github.com/tmc/langchaingo/vectorstores"
+//		"github.com/infinilabs/langchaingo/chains"
+//		"github.com/infinilabs/langchaingo/vectorstores"
 //	)
 //
 //	chain := chains.NewRetrievalQAFromLLM(
@@ -121,9 +121,9 @@
 // Create agents that can use tools to accomplish complex tasks:
 //
 //	import (
-//		"github.com/tmc/langchaingo/agents"
-//		"github.com/tmc/langchaingo/tools/serpapi"
-//		"github.com/tmc/langchaingo/tools/calculator"
+//		"github.com/infinilabs/langchaingo/agents"
+//		"github.com/infinilabs/langchaingo/tools/serpapi"
+//		"github.com/infinilabs/langchaingo/tools/calculator"
 //	)
 //
 //	// Create tools
@@ -144,8 +144,8 @@
 // Maintain conversation context across multiple interactions:
 //
 //	import (
-//		"github.com/tmc/langchaingo/memory"
-//		"github.com/tmc/langchaingo/chains"
+//		"github.com/infinilabs/langchaingo/memory"
+//		"github.com/infinilabs/langchaingo/chains"
 //	)
 //
 //	// Create memory
@@ -210,7 +210,7 @@
 //
 // LangchainGo provides standardized error handling:
 //
-//	import "github.com/tmc/langchaingo/llms"
+//	import "github.com/infinilabs/langchaingo/llms"
 //
 //	if err != nil {
 //		if llms.IsAuthenticationError(err) {
@@ -226,7 +226,7 @@
 // LangchainGo includes comprehensive testing utilities including HTTP record/replay for internal tests.
 // The httprr package provides deterministic testing of HTTP interactions:
 //
-//	import "github.com/tmc/langchaingo/internal/httprr"
+//	import "github.com/infinilabs/langchaingo/internal/httprr"
 //
 //	func TestMyFunction(t *testing.T) {
 //		rr := httprr.OpenForTest(t, http.DefaultTransport)

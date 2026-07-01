@@ -15,7 +15,7 @@ import (
 	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/commonmark"
 	"github.com/JohannesKaufmann/html-to-markdown/v2/plugin/table"
 	"github.com/gocolly/colly"
-	"github.com/tmc/langchaingo/tools"
+	"github.com/infinilabs/langchaingo/tools"
 )
 
 const (

@@ -8,10 +8,10 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/tmc/langchaingo/embeddings"
-	"github.com/tmc/langchaingo/httputil"
-	"github.com/tmc/langchaingo/schema"
-	"github.com/tmc/langchaingo/vectorstores"
+	"github.com/infinilabs/langchaingo/embeddings"
+	"github.com/infinilabs/langchaingo/httputil"
+	"github.com/infinilabs/langchaingo/schema"
+	"github.com/infinilabs/langchaingo/vectorstores"
 )
 
 // Store is a wrapper to use azure AI search rest API.

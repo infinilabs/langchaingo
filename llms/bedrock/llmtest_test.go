@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tmc/langchaingo/testing/llmtest"
+	"github.com/infinilabs/langchaingo/testing/llmtest"
 )
 
 func TestLLM(t *testing.T) {

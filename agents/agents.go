@@ -3,9 +3,9 @@ package agents
 import (
 	"context"
 
-	"github.com/tmc/langchaingo/chains"
-	"github.com/tmc/langchaingo/schema"
-	"github.com/tmc/langchaingo/tools"
+	"github.com/infinilabs/langchaingo/chains"
+	"github.com/infinilabs/langchaingo/schema"
+	"github.com/infinilabs/langchaingo/tools"
 )
 
 // Agent is the interface all agents must implement.

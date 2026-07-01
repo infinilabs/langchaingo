@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"cloud.google.com/go/vertexai/genai"
-	"github.com/tmc/langchaingo/internal/imageutil"
-	"github.com/tmc/langchaingo/llms"
+	"github.com/infinilabs/langchaingo/internal/imageutil"
+	"github.com/infinilabs/langchaingo/llms"
 	"google.golang.org/api/iterator"
 )
 

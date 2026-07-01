@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/schema"
-	"github.com/tmc/langchaingo/util/cloudsqlutil"
+	"github.com/infinilabs/langchaingo/llms"
+	"github.com/infinilabs/langchaingo/schema"
+	"github.com/infinilabs/langchaingo/util/cloudsqlutil"
 )
 
 type ChatMessageHistory struct {

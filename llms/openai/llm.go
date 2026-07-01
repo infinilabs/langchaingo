@@ -4,8 +4,8 @@ import (
 	"errors"
 	"os"
 
-	"github.com/tmc/langchaingo/httputil"
-	"github.com/tmc/langchaingo/llms/openai/internal/openaiclient"
+	"github.com/infinilabs/langchaingo/httputil"
+	"github.com/infinilabs/langchaingo/llms/openai/internal/openaiclient"
 )
 
 var (

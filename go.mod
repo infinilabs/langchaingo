@@ -1,4 +1,4 @@
-module github.com/tmc/langchaingo
+module github.com/infinilabs/langchaingo
 
 go 1.25.0
 
